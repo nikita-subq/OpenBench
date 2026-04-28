@@ -6,3 +6,4 @@ from .deepgram import DeepgramStreamingPipeline, DeepgramStreamingPipelineConfig
 from .fireworks import FireworksStreamingPipeline, FireworksStreamingPipelineConfig
 from .gladia import GladiaStreamingPipeline, GladiaStreamingPipelineConfig
 from .openai import OpenAIStreamingPipeline, OpenAIStreamingPipelineConfig
+from .subq import SubqStreamingPipeline, SubqStreamingPipelineConfig

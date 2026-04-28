@@ -14,6 +14,7 @@ from .diarization import (
     PyannoteApiPipeline,
     PyAnnotePipeline,
     SpeakerKitPipeline,
+    SubqDiarizationPipeline,
 )
 from .orchestration import (
     DeepgramOrchestrationPipeline,
@@ -21,6 +22,7 @@ from .orchestration import (
     NeMoMTParakeetPipeline,
     OpenAIOrchestrationPipeline,
     PyannoteOrchestrationPipeline,
+    SubqOrchestrationPipeline,
     WhisperKitProOrchestrationPipeline,
     WhisperXPipeline,
 )
@@ -31,6 +33,7 @@ from .streaming_transcription import (
     FireworksStreamingPipeline,
     GladiaStreamingPipeline,
     OpenAIStreamingPipeline,
+    SubqStreamingPipeline,
 )
 from .transcription import (
     AssemblyAITranscriptionPipeline,
@@ -41,6 +44,7 @@ from .transcription import (
     OpenAITranscriptionPipeline,
     PyannoteTranscriptionPipeline,
     SpeechAnalyzerPipeline,
+    SubqTranscriptionPipeline,
     WhisperKitProTranscriptionPipeline,
     WhisperKitTranscriptionPipeline,
     WhisperOSSTranscriptionPipeline,
@@ -724,6 +728,53 @@ def register_pipeline_aliases() -> None:
             "endpoint_url": "wss://streaming.assemblyai.com/v3/ws",
         },
         description="AssemblyAI streaming transcription pipeline. Requires API key from https://www.assemblyai.com/. Set `ASSEMBLYAI_API_KEY` env var.",
+    )
+
+    ################# SUBQ (DEEPGRAM-COMPATIBLE) PIPELINES #################
+
+    PipelineRegistry.register_alias(
+        "subq-transcription",
+        SubqTranscriptionPipeline,
+        default_config={
+            "out_dir": "./subq_transcription_results",
+            "model_version": "nova-3",
+            "use_keywords": False,
+        },
+        description="SubQ (Deepgram-compatible) transcription. Requires `SUBQ_API_KEY` env var. See https://platform.aldea.ai/docs/overview",
+    )
+
+    PipelineRegistry.register_alias(
+        "subq-diarization",
+        SubqDiarizationPipeline,
+        default_config={
+            "out_dir": "./subq_diarization_results",
+            "model_version": "nova-3",
+        },
+        description="SubQ (Deepgram-compatible) diarization. Requires `SUBQ_API_KEY` env var. See https://platform.aldea.ai/docs/overview",
+    )
+
+    PipelineRegistry.register_alias(
+        "subq-orchestration",
+        SubqOrchestrationPipeline,
+        default_config={
+            "out_dir": "./subq_orchestration_results",
+            "model_version": "nova-3",
+        },
+        description="SubQ (Deepgram-compatible) orchestration (diarization + transcription). Requires `SUBQ_API_KEY` env var. See https://platform.aldea.ai/docs/overview",
+    )
+
+    PipelineRegistry.register_alias(
+        "subq-streaming",
+        SubqStreamingPipeline,
+        default_config={
+            "sample_rate": 16000,
+            "channels": 1,
+            "sample_width": 2,
+            "realtime_resolution": 0.02,
+            "model_version": "nova-3",
+            "endpoint_url": "wss://api.aldea.ai/v1/listen?model={model_version}&channels={channels}&sample_rate={sample_rate}&encoding=linear16&interim_results=true",
+        },
+        description="SubQ (Deepgram-compatible) streaming transcription. Requires `SUBQ_API_KEY` env var. See https://platform.aldea.ai/docs/overview",
     )
 
 

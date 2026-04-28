@@ -9,6 +9,7 @@ from .pyannote_engine import (
     PyannoteApiTurn,
     PyannoteApiWord,
 )
+from .subq_engine import SubqApi
 from .whisperkitpro_engine import (
     WhisperKitPro,
     WhisperKitProConfig,
@@ -29,6 +30,7 @@ __all__ = [
     "PyannoteApiSegment",
     "PyannoteApiTurn",
     "PyannoteApiWord",
+    "SubqApi",
     "WhisperKitPro",
     "WhisperKitProInput",
     "WhisperKitProOutput",

@@ -178,6 +178,10 @@ export DEEPGRAM_API_KEY="your-api-key"
 export FIREWORKS_API_KEY="your-api-key"
 export GLADIA_API_KEY="your-api-key"
 export OPENAI_API_KEY="your-api-key"
+
+# SubQ (Deepgram-compatible API from https://platform.aldea.ai)
+export SUBQ_API_KEY="your-api-key"
+# export SUBQ_HOST_URL="https://api.aldea.ai"  # optional override
 ```
 
 For more details about pipeline requirements, run `openbench-cli summary` to see the full list of available pipelines and their descriptions.

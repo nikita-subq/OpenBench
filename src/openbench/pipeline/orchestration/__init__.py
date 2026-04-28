@@ -4,6 +4,7 @@
 from .nemo import NeMoMTParakeetPipeline, NeMoMTParakeetPipelineConfig
 from .orchestration_deepgram import DeepgramOrchestrationPipeline, DeepgramOrchestrationPipelineConfig
 from .orchestration_elevenlabs import ElevenLabsOrchestrationPipeline, ElevenLabsOrchestrationPipelineConfig
+from .orchestration_subq import SubqOrchestrationPipeline, SubqOrchestrationPipelineConfig
 from .orchestration_openai import OpenAIOrchestrationPipeline, OpenAIOrchestrationPipelineConfig
 from .orchestration_pyannote import PyannoteOrchestrationPipeline, PyannoteOrchestrationPipelineConfig
 from .orchestration_whisperkitpro import WhisperKitProOrchestrationConfig, WhisperKitProOrchestrationPipeline
@@ -25,4 +26,6 @@ __all__ = [
     "NeMoMTParakeetPipelineConfig",
     "PyannoteOrchestrationPipeline",
     "PyannoteOrchestrationPipelineConfig",
+    "SubqOrchestrationPipeline",
+    "SubqOrchestrationPipelineConfig",
 ]

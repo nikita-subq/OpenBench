@@ -1,0 +1,71 @@
+from pathlib import Path
+from typing import Callable
+
+from argmaxtools.utils import get_logger
+from deepgram import PrerecordedOptions
+from pydantic import Field
+
+from ...dataset import DiarizationSample
+from ...engine import SubqApi
+from ...engine.deepgram_engine import DeepgramApiResponse
+from ...pipeline import Pipeline, register_pipeline
+from ...pipeline_prediction import Transcript
+from ...types import PipelineType
+from .common import OrchestrationConfig, OrchestrationOutput
+
+
+logger = get_logger(__name__)
+
+TEMP_AUDIO_DIR = Path("temp_audio_dir")
+
+
+class SubqOrchestrationPipelineConfig(OrchestrationConfig):
+    model_version: str = Field(
+        default="nova-3",
+        description="The model version to use for SubQ orchestration",
+    )
+
+
+@register_pipeline
+class SubqOrchestrationPipeline(Pipeline):
+    _config_class = SubqOrchestrationPipelineConfig
+    pipeline_type = PipelineType.ORCHESTRATION
+
+    def build_pipeline(self) -> Callable[[Path], DeepgramApiResponse]:
+        base_api = SubqApi(
+            options=PrerecordedOptions(
+                model=self.config.model_version,
+                smart_format=True,
+                diarize=True,
+                detect_language=not self.config.force_language,
+            )
+        )
+
+        def transcribe(audio_path: Path) -> DeepgramApiResponse:
+            if self.current_language:
+                base_api.set_language(self.current_language)
+
+            response = base_api.transcribe(audio_path)
+            audio_path.unlink(missing_ok=True)
+            return response
+
+        return transcribe
+
+    def parse_input(self, input_sample: DiarizationSample) -> Path:
+        self.current_language = None
+        if self.config.force_language:
+            self.current_language = input_sample.language
+
+        return input_sample.save_audio(TEMP_AUDIO_DIR)
+
+    def parse_output(self, output: DeepgramApiResponse) -> OrchestrationOutput:
+        return OrchestrationOutput(
+            prediction=Transcript.from_words_info(
+                words=output.words,
+                speaker=output.speakers,
+                start=output.start,
+                end=output.end,
+            ),
+            diarization_output=None,
+            transcription_output=None,
+        )
