@@ -9,9 +9,18 @@ from .deepgram_engine import DeepgramApiResponse
 
 SUBQ_DEFAULT_HOST = "https://api.aldea.ai"
 
+_CONTENT_TYPES = {
+    ".wav": "audio/wav",
+    ".flac": "audio/flac",
+    ".mp3": "audio/mpeg",
+    ".ogg": "audio/ogg",
+    ".m4a": "audio/mp4",
+    ".webm": "audio/webm",
+}
+
 
 class SubqApi:
-    def __init__(self, options: PrerecordedOptions, timeout: Timeout = Timeout(300)):
+    def __init__(self, options: PrerecordedOptions, timeout: Timeout = Timeout(600)):
         self.options = options
         self.timeout = timeout
 
@@ -40,13 +49,17 @@ class SubqApi:
             buffer_data = file.read()
         payload: FileSource = {"buffer": buffer_data}
 
+        content_type = _CONTENT_TYPES.get(audio_path.suffix.lower(), "audio/wav")
+        extra_headers = {"Content-Type": content_type}
+
         response: PrerecordedResponse = self.client.listen.rest.v("1").transcribe_file(
-            payload, self.options, timeout=self.timeout
+            payload, self.options, headers=extra_headers, timeout=self.timeout
         )
 
+        words = response.results.channels[0].alternatives[0].words
         return DeepgramApiResponse(
-            words=[w.punctuated_word for w in response.results.channels[0].alternatives[0].words],
-            speakers=[str(w.speaker) for w in response.results.channels[0].alternatives[0].words],
-            start=[float(w.start) for w in response.results.channels[0].alternatives[0].words],
-            end=[float(w.end) for w in response.results.channels[0].alternatives[0].words],
+            words=[getattr(w, "punctuated_word", None) or w.word for w in words],
+            speakers=[str(w.speaker) if w.speaker is not None else "0" for w in words],
+            start=[float(w.start) for w in words],
+            end=[float(w.end) for w in words],
         )

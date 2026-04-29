@@ -4,8 +4,13 @@
 """Main CLI entry point for openbench-cli."""
 
 import typer
+from dotenv import find_dotenv, load_dotenv
 
-from openbench.cli.commands import dataset, evaluate, inference, summary
+# Load environment variables from a .env file (searches cwd and parents) before
+# importing any modules that may read env vars at import time.
+load_dotenv(find_dotenv(usecwd=True), override=False)
+
+from openbench.cli.commands import dataset, evaluate, inference, summary  # noqa: E402
 
 
 app = typer.Typer(
