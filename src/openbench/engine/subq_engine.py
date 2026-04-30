@@ -1,13 +1,14 @@
 import os
 from pathlib import Path
 
+from argmaxtools.utils import get_logger
 from deepgram import DeepgramClient, DeepgramClientOptions, FileSource, PrerecordedOptions, PrerecordedResponse
 from httpx import Timeout
 
 from .deepgram_engine import DeepgramApiResponse
 
 
-SUBQ_DEFAULT_HOST = "https://api.aldea.ai"
+logger = get_logger(__name__)
 
 _CONTENT_TYPES = {
     ".wav": "audio/wav",
@@ -27,7 +28,14 @@ class SubqApi:
         if not os.getenv("SUBQ_API_KEY"):
             raise ValueError("`SUBQ_API_KEY` is not set")
 
-        self.host = os.getenv("SUBQ_HOST_URL", SUBQ_DEFAULT_HOST)
+        host = os.getenv("SUBQ_HOST_URL")
+        if not host:
+            raise ValueError("`SUBQ_HOST_URL` is not set")
+        self.host = host
+
+        print(f"[SubqApi] SUBQ_HOST_URL={self.host}", flush=True)
+        logger.info("SubqApi initialized with SUBQ_HOST_URL=%s", self.host)
+
         config = DeepgramClientOptions(url=self.host)
         self.client = DeepgramClient(os.getenv("SUBQ_API_KEY"), config)
 

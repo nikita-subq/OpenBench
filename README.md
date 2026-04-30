@@ -181,7 +181,8 @@ export OPENAI_API_KEY="your-api-key"
 
 # SubQ (Deepgram-compatible API from https://platform.aldea.ai)
 export SUBQ_API_KEY="your-api-key"
-# export SUBQ_HOST_URL="https://api.aldea.ai"  # optional override
+export SUBQ_HOST_URL="https://api.aldea.ai"   # required: prod=https://api.aldea.ai, staging=https://stt-api.staging.aldea.ai
+# Streaming pipelines should use the wss:// equivalent, e.g. wss://api.aldea.ai
 ```
 
 For more details about pipeline requirements, run `openbench-cli summary` to see the full list of available pipelines and their descriptions.

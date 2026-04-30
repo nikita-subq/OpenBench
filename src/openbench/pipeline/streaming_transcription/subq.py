@@ -17,8 +17,6 @@ from .common import StreamingTranscriptionConfig, StreamingTranscriptionOutput
 
 logger = get_logger(__name__)
 
-SUBQ_DEFAULT_WS_HOST = "wss://api.aldea.ai"
-
 
 class SubqStreamingApi:
     def __init__(self, cfg) -> None:
@@ -29,7 +27,14 @@ class SubqStreamingApi:
         self.channels = cfg.channels
         self.sample_width = cfg.sample_width
         self.sample_rate = cfg.sample_rate
-        self.host_url = os.getenv("SUBQ_HOST_URL", SUBQ_DEFAULT_WS_HOST)
+
+        host_url = os.getenv("SUBQ_HOST_URL")
+        if not host_url:
+            raise ValueError("`SUBQ_HOST_URL` is not set")
+        self.host_url = host_url
+
+        print(f"[SubqStreamingApi] SUBQ_HOST_URL={self.host_url}", flush=True)
+        logger.info("SubqStreamingApi initialized with SUBQ_HOST_URL=%s", self.host_url)
 
     async def run(self, data, key, channels, sample_width, sample_rate):
         byte_rate = sample_width * sample_rate * channels
