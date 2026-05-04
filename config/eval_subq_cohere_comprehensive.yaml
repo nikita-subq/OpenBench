@@ -1,0 +1,72 @@
+# Comprehensive transcription eval ("Option A" — ~30–60 min wall clock at ~40x RTF).
+#
+# Covers the main audio-condition axes for English ASR that are publicly accessible
+# from this HuggingFace account:
+#   - librispeech-200     : clean read speech, baseline "easy" floor (~30 min audio)
+#   - earnings22-12hours  : long-form business English, 22-country accent diversity (~12 h)
+#   - chime-6             : far-field conversational dinner-party (hardest acoustic case)
+#   - common-voice-en     : crowd-sourced single-utterance speaker variety (~400 clips)
+#
+# (Note: `ami-ihm-openbench` would cover the close-talking meeting axis but the
+#  `argmaxinc/ami-openbench` HF repo is gated and not accessible from this account.
+#  `chime-6` covers a much harder version of the same meeting/conversational axis.)
+#
+# All four are run as a single benchmark against the SubQ transcription pipeline,
+# which routes through SUBQ_HOST_URL + SUBQ_API_KEY (set in .env).
+#
+# Pipeline `model_version` is forwarded to the endpoint as the `model=` query param,
+# so swapping it picks a different backend model on the same host.
+#
+# === Two intended runs ===
+#
+# 1. Cohere endpoint  (.env -> SUBQ_HOST_URL=https://cohere.sparsecompute.com:4433)
+#      Uses defaults below: model_version=CohereLabs/cohere-transcribe-03-2026
+#
+# 2. SubQ Prod endpoint  (.env -> SUBQ_HOST_URL=https://api.aldea.ai)
+#      Override: pipeline_config.SubqTranscriptionPipeline.model_version=nvidia/parakeet-tdt-0.6b-v2
+#                benchmark_config.wandb_config.run_name=subq-prod-parakeet-comprehensive
+#
+# Both runs land in the same W&B project (openbench-transcription) so they can be
+# compared side-by-side; tags distinguish endpoint/model.
+
+benchmark_config:
+  wandb_config:
+    project_name: openbench-transcription
+    run_name: subq-cohere-transcribe-03-2026-comprehensive
+    is_active: true
+    tags:
+      - subq-transcription
+      - comprehensive
+      - cohere
+      - model:CohereLabs-cohere-transcribe-03-2026
+      - env:cohere
+
+  metrics:
+    wer:
+      skip_overlap: false
+
+  datasets:
+    librispeech-200:
+      dataset_id: argmaxinc/librispeech-openbench
+      split: test
+      subset: "200"
+
+    earnings22-12hours:
+      dataset_id: argmaxinc/earnings22-openbench
+      split: test
+      subset: 12hours
+
+    chime-6:
+      dataset_id: argmaxinc/chime-6
+      split: test
+
+    common-voice-en:
+      dataset_id: argmaxinc/common_voice_17_0-argmax_subset-400-openbench
+      split: test
+      subset: en
+
+pipeline_config:
+  SubqTranscriptionPipeline:
+    model_version: CohereLabs/cohere-transcribe-03-2026
+    use_keywords: false
+    force_language: false
